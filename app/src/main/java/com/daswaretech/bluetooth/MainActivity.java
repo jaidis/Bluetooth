@@ -2,23 +2,40 @@ package com.daswaretech.bluetooth;
 
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.WindowManager;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 public class MainActivity extends AppCompatActivity {
 
     private BluetoothManager mBluetoothManager;
+    private Map<String,String> listado = new HashMap<>();
+    private Integer contador = 0;
+    private TextView textoVista;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Movil del demonio: Android 8.0 Bluetooth 4.2
+        // https://www.kimovil.com/es/donde-comprar-samsung-galaxy-j6-2018
 
         //CHECK ACCESS_FINE_LOCATION permission
 
@@ -47,6 +64,39 @@ public class MainActivity extends AppCompatActivity {
 
         //Turn on Bluetooth
         bluetoothAdapter.enable();
+
+        // Recovery information
+        contador++;
+        listado.put(contador.toString(), "Nombre dispositivo: "+bluetoothAdapter.getName());
+
+        // Recovery real Mac Address from the Device
+        contador++;
+        String macAddress2 = android.provider.Settings.Secure.getString(this.getContentResolver(), "bluetooth_address");
+        listado.put(contador.toString(), "Dirección MAC: "+macAddress2);
+
+        // Recovery a list of paired devices
+        Set<BluetoothDevice> listVinculados =  bluetoothAdapter.getBondedDevices();
+
+        for (BluetoothDevice dispositivo : listVinculados) {
+            Map<String,String> listadoTemp = new HashMap<>();
+
+            listadoTemp.put("Nombre dispositivo", dispositivo.getName());
+            listadoTemp.put("Direccion Mac", dispositivo.getAddress());
+            listadoTemp.put("Codigo Bluetooth", dispositivo.getBluetoothClass().toString());
+            contador++;
+            listado.put(contador.toString(), "Dispositivo vinculado: " +listadoTemp);
+        }
+
+        //Checking the default functions from Bluetooth Adapter
+
+        //JSONObject json = new JSONObject(listado);
+        textoVista = (TextView) findViewById(R.id.textoDefecto);
+        Map<String, String> treeMap = new TreeMap<String, String>(listado);
+        textoVista.setText(treeMap.toString());
+
+        //JSONObject json = new JSONObject(treeMap);
+        //Log.d("DASWARE-DEBUG", "onCreate: "+json.toString());
+        //textoVista.setText(json.toString());
 
 
     }
