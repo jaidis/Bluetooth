@@ -5,6 +5,8 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.content.pm.PackageManager;
+import android.os.Build;
+import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -71,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Recovery real Mac Address from the Device
         contador++;
-        String macAddress2 = android.provider.Settings.Secure.getString(this.getContentResolver(), "bluetooth_address");
+        String macAddress2 = Settings.Secure.getString(this.getContentResolver(), "bluetooth_address");
         listado.put(contador.toString(), "Dirección MAC: "+macAddress2);
 
         // Recovery a list of paired devices
@@ -88,6 +90,37 @@ public class MainActivity extends AppCompatActivity {
         }
 
         //Checking the default functions from Bluetooth Adapter
+
+        contador++;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            listado.put(contador.toString(), "LE 2M PHY feature is supported: "+bluetoothAdapter.isLe2MPhySupported());
+        }else{
+            listado.put(contador.toString(), "LE 2M PHY feature not supported: ");
+        }
+
+        contador++;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            listado.put(contador.toString(), "LE Coded PHY feature is supported: "+bluetoothAdapter.isLeCodedPhySupported());
+        }else{
+            listado.put(contador.toString(), "LE Coded PHY feature not supported");
+        }
+
+        contador++;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            listado.put(contador.toString(), "LE Extended Advertising feature is supported:"+bluetoothAdapter.isLeExtendedAdvertisingSupported());
+        }else{
+            listado.put(contador.toString(), "LE Extended Advertising feature not supported");
+        }
+
+        contador++;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            listado.put(contador.toString(),"LE Periodic Advertising feature is supported: "+bluetoothAdapter.isLePeriodicAdvertisingSupported());
+        }else{
+            listado.put(contador.toString(), "LE Periodic Advertising feature not supported");
+        }
+
+        contador++;
+        listado.put(contador.toString(),"Multi advertisement is supported: "+bluetoothAdapter.isMultipleAdvertisementSupported());
 
         //JSONObject json = new JSONObject(listado);
         textoVista = (TextView) findViewById(R.id.textoDefecto);
