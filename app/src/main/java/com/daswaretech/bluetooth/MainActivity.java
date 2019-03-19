@@ -4,9 +4,11 @@ import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.provider.Settings;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -30,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private Map<String,String> listado = new HashMap<>();
     private Integer contador = 0;
     private TextView textoVista;
+    private BluetoothAdapter btAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,21 +58,48 @@ public class MainActivity extends AppCompatActivity {
 
         // Init Bluetooth adapter
         mBluetoothManager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
-        BluetoothAdapter bluetoothAdapter = mBluetoothManager.getAdapter();
+        btAdapter = mBluetoothManager.getAdapter();
 
         // Checks if Bluetooth is supported on the device.
-        if (bluetoothAdapter == null) {
+        if (btAdapter == null) {
             Toast.makeText(this, "Not bluetooth device supported", Toast.LENGTH_LONG).show();
             finish();
             return;
         }
+        else{
+            if (btAdapter.isEnabled())
+                comprobarBluetooth();
+            else{
+                //Turn on Bluetooth
+                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                startActivityForResult(enableBtIntent, 1);
+            }
+        }
+    }
 
-        //Turn on Bluetooth
-        bluetoothAdapter.enable();
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode){
+            case 1:
+                if(resultCode == RESULT_OK){
+                    comprobarBluetooth();
+                }
+                else{
+                    Toast.makeText(this, R.string.bt_not_enabled_leaving, Toast.LENGTH_LONG).show();
+                    finish();
+                }
+            default:
+                super.onActivityResult(requestCode,resultCode,data);
+        }
+    }
+
+    private void comprobarBluetooth(){
+        contador = 0;
 
         // Recovery information
         contador++;
-        listado.put(contador.toString(), "Nombre dispositivo: "+bluetoothAdapter.getName());
+        listado.put(contador.toString(), "Nombre dispositivo: "+btAdapter.getName());
 
         // Recovery real Mac Address from the Device
         contador++;
@@ -77,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
         listado.put(contador.toString(), "Dirección MAC: "+macAddress2);
 
         // Recovery a list of paired devices
-        Set<BluetoothDevice> listVinculados =  bluetoothAdapter.getBondedDevices();
+        Set<BluetoothDevice> listVinculados =  btAdapter.getBondedDevices();
 
         for (BluetoothDevice dispositivo : listVinculados) {
             Map<String,String> listadoTemp = new HashMap<>();
@@ -93,34 +123,34 @@ public class MainActivity extends AppCompatActivity {
 
         contador++;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            listado.put(contador.toString(), "LE 2M PHY feature is supported: "+bluetoothAdapter.isLe2MPhySupported());
+            listado.put(contador.toString(), "LE 2M PHY feature is supported: "+btAdapter.isLe2MPhySupported());
         }else{
             listado.put(contador.toString(), "LE 2M PHY feature not supported: ");
         }
 
         contador++;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            listado.put(contador.toString(), "LE Coded PHY feature is supported: "+bluetoothAdapter.isLeCodedPhySupported());
+            listado.put(contador.toString(), "LE Coded PHY feature is supported: "+btAdapter.isLeCodedPhySupported());
         }else{
             listado.put(contador.toString(), "LE Coded PHY feature not supported");
         }
 
         contador++;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            listado.put(contador.toString(), "LE Extended Advertising feature is supported:"+bluetoothAdapter.isLeExtendedAdvertisingSupported());
+            listado.put(contador.toString(), "LE Extended Advertising feature is supported:"+btAdapter.isLeExtendedAdvertisingSupported());
         }else{
             listado.put(contador.toString(), "LE Extended Advertising feature not supported");
         }
 
         contador++;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            listado.put(contador.toString(),"LE Periodic Advertising feature is supported: "+bluetoothAdapter.isLePeriodicAdvertisingSupported());
+            listado.put(contador.toString(),"LE Periodic Advertising feature is supported: "+btAdapter.isLePeriodicAdvertisingSupported());
         }else{
             listado.put(contador.toString(), "LE Periodic Advertising feature not supported");
         }
 
         contador++;
-        listado.put(contador.toString(),"Multi advertisement is supported: "+bluetoothAdapter.isMultipleAdvertisementSupported());
+        listado.put(contador.toString(),"Multi advertisement is supported: "+btAdapter.isMultipleAdvertisementSupported());
 
         //JSONObject json = new JSONObject(listado);
         textoVista = (TextView) findViewById(R.id.textoDefecto);
@@ -130,7 +160,8 @@ public class MainActivity extends AppCompatActivity {
         //JSONObject json = new JSONObject(treeMap);
         //Log.d("DASWARE-DEBUG", "onCreate: "+json.toString());
         //textoVista.setText(json.toString());
-
-
+    }
+    private void sendAdvertising(){
+        
     }
 }
