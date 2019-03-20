@@ -1,9 +1,13 @@
 package com.daswaretech.bluetooth;
 
 import android.Manifest;
+import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.le.AdvertiseCallback;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -29,15 +33,22 @@ import java.util.TreeMap;
 public class MainActivity extends AppCompatActivity {
 
     private BluetoothManager mBluetoothManager;
+    private BluetoothAdapter btAdapter;
+
     private Map<String,String> listado = new HashMap<>();
     private Integer contador = 0;
     private TextView textoVista;
-    private BluetoothAdapter btAdapter;
+
+    // A listiner if the advertising failure
+    private BroadcastReceiver advertisingFailureReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Init advertising failure listener
+        advertisingFailure(this);
 
         // Movil del demonio: Android 8.0 Bluetooth 4.2
         // https://www.kimovil.com/es/donde-comprar-samsung-galaxy-j6-2018
@@ -92,6 +103,47 @@ public class MainActivity extends AppCompatActivity {
             default:
                 super.onActivityResult(requestCode,resultCode,data);
         }
+    }
+
+    protected void advertisingFailure(final Activity mainActivity){
+        advertisingFailureReceiver = new BroadcastReceiver() {
+
+            /**
+             * Receives Advertising error codes from {@code AdvertiserService} and displays error messages
+             * to the user. Sets the advertising toggle to 'false.'
+             */
+            @Override
+            public void onReceive(Context context, Intent intent) {
+
+                int errorCode = intent.getIntExtra(AdvertiserService.ADVERTISING_FAILED_EXTRA_CODE, -1);
+
+                String errorMessage = getString(R.string.start_error_prefix);
+                switch (errorCode) {
+                    case AdvertiseCallback.ADVERTISE_FAILED_ALREADY_STARTED:
+                        errorMessage += " " + getString(R.string.start_error_already_started);
+                        break;
+                    case AdvertiseCallback.ADVERTISE_FAILED_DATA_TOO_LARGE:
+                        errorMessage += " " + getString(R.string.start_error_too_large);
+                        break;
+                    case AdvertiseCallback.ADVERTISE_FAILED_FEATURE_UNSUPPORTED:
+                        errorMessage += " " + getString(R.string.start_error_unsupported);
+                        break;
+                    case AdvertiseCallback.ADVERTISE_FAILED_INTERNAL_ERROR:
+                        errorMessage += " " + getString(R.string.start_error_internal);
+                        break;
+                    case AdvertiseCallback.ADVERTISE_FAILED_TOO_MANY_ADVERTISERS:
+                        errorMessage += " " + getString(R.string.start_error_too_many);
+                        break;
+                    case AdvertiserService.ADVERTISING_TIMED_OUT:
+                        errorMessage = " " + getString(R.string.advertising_timedout);
+                        break;
+                    default:
+                        errorMessage += " " + getString(R.string.start_error_unknown);
+                }
+
+                Toast.makeText(mainActivity, errorMessage, Toast.LENGTH_LONG).show();
+            }
+        };
     }
 
     private void comprobarBluetooth(){
@@ -162,6 +214,8 @@ public class MainActivity extends AppCompatActivity {
         //textoVista.setText(json.toString());
     }
     private void sendAdvertising(){
-        
+
+
+
     }
 }

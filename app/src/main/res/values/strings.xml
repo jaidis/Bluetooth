@@ -2,4 +2,14 @@
     <string name="app_name">Bluetooth</string>
     <string name="loading_text">Loading...</string>
     <string name="bt_not_enabled_leaving">Es necesario activar el dispositivo Bluetooth, aplicación abortada</string>
+    <string name="bt_null">Error: Bluetooth object null</string>
+
+    <string name="advertising_timedout">Advertising stopped due to timeout.</string>
+    <string name="start_error_prefix">Start Advertising failed: </string>
+    <string name="start_error_already_started">already started.</string>
+    <string name="start_error_too_large">data packet exceeded 31 Byte limit.</string>
+    <string name="start_error_unsupported">not supported on this device.</string>
+    <string name="start_error_internal">internal error.</string>
+    <string name="start_error_too_many">too many advertisers.</string>
+    <string name="start_error_unknown">unknown error</string>
 </resources>
