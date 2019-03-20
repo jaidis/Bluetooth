@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">Bluetooth</string>
     <string name="loading_text">Loading...</string>
+    <string name="btScan">Launch Scan</string>
+    <string name="btStop">Stop Scan</string>
     <string name="bt_not_enabled_leaving">Es necesario activar el dispositivo Bluetooth, aplicación abortada</string>
     <string name="bt_null">Error: Bluetooth object null</string>
 

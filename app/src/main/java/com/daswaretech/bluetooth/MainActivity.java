@@ -6,6 +6,9 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.AdvertiseCallback;
+import android.bluetooth.le.BluetoothLeScanner;
+import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanResult;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -13,11 +16,15 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NavUtils;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,6 +32,7 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -34,12 +42,15 @@ public class MainActivity extends AppCompatActivity {
 
     private BluetoothManager mBluetoothManager;
     private BluetoothAdapter btAdapter;
+    private ArrayList<BluetoothDevice> mLeDevices;
+    private BluetoothLeScanner btScanner;
+    private ScanCallback mScanCallback;
 
     private Map<String,String> listado = new HashMap<>();
     private Integer contador = 0;
     private TextView textoVista;
 
-    // A listiner if the advertising failure
+    // A listener if the advertising failure
     private BroadcastReceiver advertisingFailureReceiver;
 
     @Override
@@ -74,18 +85,26 @@ public class MainActivity extends AppCompatActivity {
         // Checks if Bluetooth is supported on the device.
         if (btAdapter == null) {
             Toast.makeText(this, "Not bluetooth device supported", Toast.LENGTH_LONG).show();
-            finish();
+            //finish();
             return;
         }
         else{
-            if (btAdapter.isEnabled())
+            if (btAdapter.isEnabled()){
+                callbackInit();
                 comprobarBluetooth();
+            }
             else{
                 //Turn on Bluetooth
                 Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                 startActivityForResult(enableBtIntent, 1);
             }
         }
+
+
+    }
+
+    private void lanzarMensaje(String message){
+        Snackbar.make(findViewById(android.R.id.content).getRootView(),message,Snackbar.LENGTH_LONG).show();
     }
 
     @Override
@@ -217,5 +236,31 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+    }
+
+    private void callbackInit(){
+        mScanCallback = new ScanCallback() {
+            @Override
+            public void onScanResult(int callbackType, ScanResult result) {
+                super.onScanResult(callbackType, result);
+                if(!mLeDevices.contains(result.getDevice())) {
+                    mLeDevices.add(result.getDevice());
+                    Log.d("DASDEBUG", result.getDevice().toString());
+                }
+                Log.d("DASDEBUG", mLeDevices.toString());
+            }
+        };
+    }
+
+    public void btLanzarScanner(View v){
+        //startActivity(new Intent(MainActivity.this, Scanner.class));
+
+        mLeDevices = new ArrayList<BluetoothDevice>();
+        btScanner = btAdapter.getBluetoothLeScanner();
+        btScanner.startScan(mScanCallback);
+    }
+
+    public void btPararScanner(View v){
+        btScanner.stopScan(mScanCallback);
     }
 }
