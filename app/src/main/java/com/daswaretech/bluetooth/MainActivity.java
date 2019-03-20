@@ -61,6 +61,9 @@ public class MainActivity extends AppCompatActivity {
         // Init advertising failure listener
         advertisingFailure(this);
 
+        // Link textview from the view
+        textoVista = (TextView) findViewById(R.id.textoDefecto);
+
         // Movil del demonio: Android 8.0 Bluetooth 4.2
         // https://www.kimovil.com/es/donde-comprar-samsung-galaxy-j6-2018
 
@@ -91,7 +94,8 @@ public class MainActivity extends AppCompatActivity {
         else{
             if (btAdapter.isEnabled()){
                 callbackInit();
-                comprobarBluetooth();
+                //mostrarInfo();
+                lanzarMensaje("Dispositivo preparado");
             }
             else{
                 //Turn on Bluetooth
@@ -99,8 +103,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(enableBtIntent, 1);
             }
         }
-
-
     }
 
     private void lanzarMensaje(String message){
@@ -113,7 +115,8 @@ public class MainActivity extends AppCompatActivity {
         switch (requestCode){
             case 1:
                 if(resultCode == RESULT_OK){
-                    comprobarBluetooth();
+                    //mostrarInfo();
+                    lanzarMensaje("Dispositivo preparado");
                 }
                 else{
                     Toast.makeText(this, R.string.bt_not_enabled_leaving, Toast.LENGTH_LONG).show();
@@ -165,7 +168,24 @@ public class MainActivity extends AppCompatActivity {
         };
     }
 
-    private void comprobarBluetooth(){
+    // Init the callback and manage the result from bluetooth scanner
+    private void callbackInit(){
+        mScanCallback = new ScanCallback() {
+            @Override
+            public void onScanResult(int callbackType, ScanResult result) {
+                super.onScanResult(callbackType, result);
+                if(!mLeDevices.contains(result.getDevice())) {
+                    mLeDevices.add(result.getDevice());
+                    Log.d("DASDEBUG", result.getDevice().toString());
+                }
+                Log.d("DASDEBUG", mLeDevices.toString());
+                textoVista.setText(mLeDevices.toString());
+            }
+        };
+    }
+
+    // Show bluetooth name, "real" mac address, paired devices and standard functions from bluetooth class
+    public void mostrarInfo(View v){
         contador = 0;
 
         // Recovery information
@@ -219,12 +239,17 @@ public class MainActivity extends AppCompatActivity {
         }else{
             listado.put(contador.toString(), "LE Periodic Advertising feature not supported");
         }
+        try{
+            contador++;
+            listado.put(contador.toString(),"Multi advertisement is supported: "+btAdapter.isMultipleAdvertisementSupported());
+        }catch (Exception e)
+        {
+            listado.put(contador.toString(),"Multi advertisement not supported ");
+        }
 
-        contador++;
-        listado.put(contador.toString(),"Multi advertisement is supported: "+btAdapter.isMultipleAdvertisementSupported());
 
         //JSONObject json = new JSONObject(listado);
-        textoVista = (TextView) findViewById(R.id.textoDefecto);
+
         Map<String, String> treeMap = new TreeMap<String, String>(listado);
         textoVista.setText(treeMap.toString());
 
@@ -232,35 +257,26 @@ public class MainActivity extends AppCompatActivity {
         //Log.d("DASWARE-DEBUG", "onCreate: "+json.toString());
         //textoVista.setText(json.toString());
     }
-    private void sendAdvertising(){
 
-
-
-    }
-
-    private void callbackInit(){
-        mScanCallback = new ScanCallback() {
-            @Override
-            public void onScanResult(int callbackType, ScanResult result) {
-                super.onScanResult(callbackType, result);
-                if(!mLeDevices.contains(result.getDevice())) {
-                    mLeDevices.add(result.getDevice());
-                    Log.d("DASDEBUG", result.getDevice().toString());
-                }
-                Log.d("DASDEBUG", mLeDevices.toString());
-            }
-        };
-    }
-
+    // Start Bluetooth LE scan with default parameters and no filters.
     public void btLanzarScanner(View v){
         //startActivity(new Intent(MainActivity.this, Scanner.class));
 
         mLeDevices = new ArrayList<BluetoothDevice>();
         btScanner = btAdapter.getBluetoothLeScanner();
         btScanner.startScan(mScanCallback);
+        textoVista.setText(R.string.loading_text);
     }
 
+    // Stops an ongoing Bluetooth LE scan.
     public void btPararScanner(View v){
         btScanner.stopScan(mScanCallback);
+        textoVista.setText(mLeDevices.toString());
+    }
+
+    private void sendAdvertising(){
+
+
+
     }
 }
