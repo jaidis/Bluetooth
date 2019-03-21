@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
     private BluetoothLeScanner btScanner;
     private ScanCallback mScanCallback;
 
+    private boolean estado = false;
     private Map<String,String> listado = new HashMap<>();
     private Integer contador = 0;
     private TextView textoVista;
@@ -76,20 +77,21 @@ public class MainActivity extends AppCompatActivity {
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
+            estado  = true;
+        }
 
+
+        // CHECK WRITE_EXTERNAL_STORAGE permission
+        if(checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            estado  = true;
+        }
+
+        if (estado){
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
                     1);
         }
-
-        // CHECK WRITE_EXTERNAL_STORAGE permission
-
-        if(checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-            }
-
 
         // Devices with a display should not go to sleep
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -156,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         saveLog();
     }
-    
+
     protected void advertisingFailure(final Activity mainActivity){
         advertisingFailureReceiver = new BroadcastReceiver() {
 
@@ -277,6 +279,21 @@ public class MainActivity extends AppCompatActivity {
             listado.put(contador.toString(),"Multi advertisement not supported ");
         }
 
+        try {
+            contador++;
+            listado.put(contador.toString(), "Chipset supports on-chip filtering: " + btAdapter.isOffloadedFilteringSupported());
+        }catch (Exception e){
+            listado.put(contador.toString(),"Chipset on-chip filtering not supported ");
+        }
+
+        try {
+            contador++;
+            listado.put(contador.toString(), "Chipset supports on-chip scan batching: " + btAdapter.isOffloadedScanBatchingSupported ());
+        }catch (Exception e){
+            listado.put(contador.toString(),"Chipset on-chip scan batching not supported ");
+        }
+
+
 
         //JSONObject json = new JSONObject(listado);
 
@@ -378,8 +395,8 @@ public class MainActivity extends AppCompatActivity {
 
             // clear the previous logcat and then write the new one to the file
             try {
-                Process process = Runtime.getRuntime().exec("logcat -c");
-                process = Runtime.getRuntime().exec("logcat -f " + logFile);
+                //process = Runtime.getRuntime().exec("logcat -c");
+                Process process = Runtime.getRuntime().exec("logcat -f " + logFile);
             } catch ( IOException e ) {
                 e.printStackTrace();
             }
