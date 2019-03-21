@@ -67,8 +67,7 @@ public class MainActivity extends AppCompatActivity {
         // Movil del demonio: Android 8.0 Bluetooth 4.2
         // https://www.kimovil.com/es/donde-comprar-samsung-galaxy-j6-2018
 
-        //CHECK ACCESS_FINE_LOCATION permission
-
+        // CHECK ACCESS_FINE_LOCATION permission
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -76,6 +75,13 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     1);
+        }
+
+        // CHECK WRITE_EXTERNAL_STORAGE permission
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if(checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+            }
         }
 
         // Devices with a display should not go to sleep
@@ -94,7 +100,6 @@ public class MainActivity extends AppCompatActivity {
         else{
             if (btAdapter.isEnabled()){
                 callbackInit();
-                //mostrarInfo();
                 lanzarMensaje("Dispositivo preparado");
             }
             else{
@@ -115,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
         switch (requestCode){
             case 1:
                 if(resultCode == RESULT_OK){
-                    //mostrarInfo();
+                    callbackInit();
                     lanzarMensaje("Dispositivo preparado");
                 }
                 else{
@@ -176,9 +181,9 @@ public class MainActivity extends AppCompatActivity {
                 super.onScanResult(callbackType, result);
                 if(!mLeDevices.contains(result.getDevice())) {
                     mLeDevices.add(result.getDevice());
-                    Log.d("DASDEBUG", result.getDevice().toString());
+                    //Log.d("DASDEBUG", result.getDevice().toString());
                 }
-                Log.d("DASDEBUG", mLeDevices.toString());
+                //Log.d("DASDEBUG", mLeDevices.toString());
                 textoVista.setText(mLeDevices.toString());
             }
         };
@@ -254,7 +259,7 @@ public class MainActivity extends AppCompatActivity {
         textoVista.setText(treeMap.toString());
 
         //JSONObject json = new JSONObject(treeMap);
-        //Log.d("DASWARE-DEBUG", "onCreate: "+json.toString());
+        //Log.d("DASDEBUG", "onCreate: "+json.toString());
         //textoVista.setText(json.toString());
     }
 
@@ -274,9 +279,30 @@ public class MainActivity extends AppCompatActivity {
         textoVista.setText(mLeDevices.toString());
     }
 
-    private void sendAdvertising(){
+    /**
+     * Returns Intent addressed to the {@code AdvertiserService} class.
+     */
+    private static Intent getServiceIntent(Context c) {
+        return new Intent(c, AdvertiserService.class);
+    }
 
+    /**
+     * Function that start the advertising service
+     * @param v
+     */
+    public void sendAdvertising(View v){
+        Context c = this;
+        c.startService(getServiceIntent(c));
+        textoVista.setText("Servicio Iniciado");
+    }
 
-
+    /**
+     * Function that stop the advertising service
+     * @param v
+     */
+    public void stopAdvertising(View v){
+        Context c = this;
+        c.stopService(getServiceIntent(c));
+        textoVista.setText("Servicio Parado");
     }
 }

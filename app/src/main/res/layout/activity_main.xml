@@ -8,7 +8,7 @@
 
     <Button
         android:id="@+id/bt_Info"
-        android:layout_width="148dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
@@ -21,7 +21,7 @@
 
     <Button
         android:id="@+id/bt_Scan"
-        android:layout_width="148dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
@@ -45,6 +45,32 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/bt_Scan" />
 
+    <Button
+        android:id="@+id/bt_Advertising"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:onClick="sendAdvertising"
+        android:text="@string/btAdvertising"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/bt_Scan_Stop" />
+
+    <Button
+        android:id="@+id/bt_AdvertisingStop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:onClick="stopAdvertising"
+        android:text="@string/btAdvertisingStop"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/bt_Advertising" />
+
     <TextView
         android:id="@+id/textoDefecto"
         android:layout_width="wrap_content"
@@ -55,6 +81,6 @@
         android:text="@string/loading_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/bt_Scan_Stop" />
+        app:layout_constraintTop_toBottomOf="@+id/bt_AdvertisingStop" />
 
 </android.support.constraint.ConstraintLayout>

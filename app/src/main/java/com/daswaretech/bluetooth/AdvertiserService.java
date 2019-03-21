@@ -47,16 +47,20 @@ public class AdvertiserService extends Service {
 
     private BluetoothLeAdvertiser mBluetoothLeAdvertiser;
 
+    private BluetoothAdapter mBluetoothAdapter;
+
     private AdvertiseCallback mAdvertiseCallback;
 
     private Handler mHandler;
 
     private Runnable timeoutRunnable;
 
+    private static String DISPOSITIVO;
+
     /**
      * Length of time to allow advertising before automatically shutting off. (10 minutes)
      */
-    private long TIMEOUT = TimeUnit.MILLISECONDS.convert(10, TimeUnit.MINUTES);
+    private long TIMEOUT = TimeUnit.MILLISECONDS.convert(1, TimeUnit.MINUTES);
 
     @Override
     public void onCreate() {
@@ -97,10 +101,11 @@ public class AdvertiserService extends Service {
         if (mBluetoothLeAdvertiser == null) {
             BluetoothManager mBluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
             if (mBluetoothManager != null) {
-                BluetoothAdapter mBluetoothAdapter = mBluetoothManager.getAdapter();
+                mBluetoothAdapter = mBluetoothManager.getAdapter();
                 if (mBluetoothAdapter != null) {
                     mBluetoothLeAdvertiser = mBluetoothAdapter.getBluetoothLeAdvertiser();
-                    // **46** Forzar el cambio del nombre del dispositivo
+                    // @TODO Forzar el cambio del nombre del dispositivo
+                    DISPOSITIVO = mBluetoothAdapter.getName();
                     mBluetoothAdapter.setName("DaswareDebug");
                 } else {
                     Toast.makeText(this, getString(R.string.bt_null), Toast.LENGTH_LONG).show();
@@ -175,6 +180,7 @@ public class AdvertiserService extends Service {
         if (mBluetoothLeAdvertiser != null) {
             mBluetoothLeAdvertiser.stopAdvertising(mAdvertiseCallback);
             mAdvertiseCallback = null;
+            mBluetoothAdapter.setName(DISPOSITIVO);
         }
     }
 
