@@ -408,7 +408,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void finishApp(View v){
+    public void finishApp(View v){
         Toast.makeText(this, "Finish application", Toast.LENGTH_LONG).show();
         finish();
     }
