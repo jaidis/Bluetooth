@@ -229,6 +229,13 @@ public class MainActivity extends AppCompatActivity {
         String macAddress2 = Settings.Secure.getString(this.getContentResolver(), "bluetooth_address");
         listado.put(contador.toString(), "Dirección MAC: "+macAddress2);
 
+        //Check if device are a Bluetooth Classic or BLE
+        contador++;
+        listado.put(contador.toString(), "Bluetooth Classic: " + getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH));
+
+        contador++;
+        listado.put(contador.toString(), "Bluetooth Low Energy: " + getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE));
+
         // Recovery a list of paired devices
         Set<BluetoothDevice> listVinculados =  btAdapter.getBondedDevices();
 
@@ -293,8 +300,6 @@ public class MainActivity extends AppCompatActivity {
             listado.put(contador.toString(),"Chipset on-chip scan batching not supported ");
         }
 
-
-
         //JSONObject json = new JSONObject(listado);
 
         Map<String, String> treeMap = new TreeMap<String, String>(listado);
@@ -317,8 +322,12 @@ public class MainActivity extends AppCompatActivity {
 
     // Stops an ongoing Bluetooth LE scan.
     public void btPararScanner(View v){
-        btScanner.stopScan(mScanCallback);
-        textoVista.setText(mLeDevices.toString());
+        try{
+            btScanner.stopScan(mScanCallback);
+            textoVista.setText(mLeDevices.toString());
+        }catch (Exception e) {
+            Log.d("DASDEBUG", "No se ha iniciado el escaner, no se puede parar");
+        }
     }
 
     /**

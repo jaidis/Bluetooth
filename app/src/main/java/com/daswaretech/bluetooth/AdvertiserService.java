@@ -166,7 +166,7 @@ public class AdvertiserService extends Service {
         Notification n = new Notification.Builder(this)
             .setContentTitle("Advertising device via Bluetooth")
             .setContentText("This device is discoverable to others nearby.")
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.mipmap.ic_launcher_foreground)
             .setContentIntent(pendingIntent)
             .build();
         startForeground(FOREGROUND_NOTIFICATION_ID, n);
