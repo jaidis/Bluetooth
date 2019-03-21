@@ -6,6 +6,7 @@
     <string name="btStop">Stop Scan</string>
     <string name="btAdvertising">Start advertising</string>
     <string name="btAdvertisingStop">Stop advertising</string>
+    <string name="btSaveLog">Save log to file</string>
     <string name="bt_not_enabled_leaving">Es necesario activar el dispositivo Bluetooth, aplicación abortada</string>
     <string name="bt_null">Error: Bluetooth object null</string>
 

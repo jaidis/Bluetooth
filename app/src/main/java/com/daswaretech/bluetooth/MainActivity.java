@@ -14,6 +14,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.os.Environment;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -32,6 +33,8 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -58,6 +61,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        saveLog();
+
         // Init advertising failure listener
         advertisingFailure(this);
 
@@ -73,16 +78,18 @@ public class MainActivity extends AppCompatActivity {
                 != PackageManager.PERMISSION_GRANTED) {
 
             ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
                     1);
         }
 
         // CHECK WRITE_EXTERNAL_STORAGE permission
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if(checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+
+        if(checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
             }
-        }
+
 
         // Devices with a display should not go to sleep
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -132,6 +139,24 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        saveLog();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        saveLog();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        saveLog();
+    }
+    
     protected void advertisingFailure(final Activity mainActivity){
         advertisingFailureReceiver = new BroadcastReceiver() {
 
@@ -183,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
                     mLeDevices.add(result.getDevice());
                     //Log.d("DASDEBUG", result.getDevice().toString());
                 }
-                //Log.d("DASDEBUG", mLeDevices.toString());
+                Log.d("DASDEBUG", mLeDevices.toString());
                 textoVista.setText(mLeDevices.toString());
             }
         };
@@ -258,8 +283,8 @@ public class MainActivity extends AppCompatActivity {
         Map<String, String> treeMap = new TreeMap<String, String>(listado);
         textoVista.setText(treeMap.toString());
 
-        //JSONObject json = new JSONObject(treeMap);
-        //Log.d("DASDEBUG", "onCreate: "+json.toString());
+        JSONObject json = new JSONObject(treeMap);
+        Log.d("DASDEBUG", "onCreate: "+json.toString());
         //textoVista.setText(json.toString());
     }
 
@@ -304,5 +329,70 @@ public class MainActivity extends AppCompatActivity {
         Context c = this;
         c.stopService(getServiceIntent(c));
         textoVista.setText("Servicio Parado");
+    }
+
+    /**
+     * Checks if external storage is available for read and write
+     */
+
+    public boolean isExternalStorageWritable() {
+        String state = Environment.getExternalStorageState();
+        if ( Environment.MEDIA_MOUNTED.equals( state ) ) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Checks if external storage is available to at least read
+     * @return
+     */
+    public boolean isExternalStorageReadable() {
+        String state = Environment.getExternalStorageState();
+        if ( Environment.MEDIA_MOUNTED.equals( state ) ||
+                Environment.MEDIA_MOUNTED_READ_ONLY.equals( state ) ) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Function that allow save the current log
+     */
+    private void saveLog(){
+        if ( isExternalStorageWritable() ) {
+
+            File appDirectory = new File( Environment.getExternalStorageDirectory() + "/DaswareDebug" );
+            File logDirectory = new File( appDirectory + "/log" );
+            File logFile = new File( logDirectory, "logcat" + System.currentTimeMillis() + ".txt" );
+
+            // create app folder
+            if ( !appDirectory.exists() ) {
+                appDirectory.mkdir();
+            }
+
+            // create log folder
+            if ( !logDirectory.exists() ) {
+                logDirectory.mkdir();
+            }
+
+            // clear the previous logcat and then write the new one to the file
+            try {
+                Process process = Runtime.getRuntime().exec("logcat -c");
+                process = Runtime.getRuntime().exec("logcat -f " + logFile);
+            } catch ( IOException e ) {
+                e.printStackTrace();
+            }
+
+        } else if ( isExternalStorageReadable() ) {
+            Toast.makeText(this, "Sin permisos de escritura", Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(this, "No es posible acceder a los directorios", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void finishApp(View v){
+        Toast.makeText(this, "Finish application", Toast.LENGTH_LONG).show();
+        finish();
     }
 }
