@@ -222,10 +222,9 @@ public class MainActivity extends AppCompatActivity {
 
     // Show bluetooth name, "real" mac address, paired devices and standard functions from bluetooth class
     public void mostrarInfo(View v){
-        contador = 0;
+        contador = 10;
 
         // Recovery information
-        contador++;
         listado.put(contador.toString(), "Nombre dispositivo: "+btAdapter.getName());
 
         // Recovery real Mac Address from the Device
@@ -240,26 +239,13 @@ public class MainActivity extends AppCompatActivity {
         contador++;
         listado.put(contador.toString(), "Bluetooth Low Energy: " + getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE));
 
-        // Recovery a list of paired devices
-        Set<BluetoothDevice> listVinculados =  btAdapter.getBondedDevices();
-
-        for (BluetoothDevice dispositivo : listVinculados) {
-            Map<String,String> listadoTemp = new HashMap<>();
-
-            listadoTemp.put("Nombre dispositivo", dispositivo.getName());
-            listadoTemp.put("Direccion Mac", dispositivo.getAddress());
-            listadoTemp.put("Codigo Bluetooth", dispositivo.getBluetoothClass().toString());
-            contador++;
-            listado.put(contador.toString(), "Dispositivo vinculado: " +listadoTemp);
-        }
-
         //Checking the default functions from Bluetooth Adapter
 
         contador++;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             listado.put(contador.toString(), "LE 2M PHY feature is supported: "+btAdapter.isLe2MPhySupported());
         }else{
-            listado.put(contador.toString(), "LE 2M PHY feature not supported: ");
+            listado.put(contador.toString(), "LE 2M PHY feature not supported");
         }
 
         contador++;
@@ -287,21 +273,34 @@ public class MainActivity extends AppCompatActivity {
             listado.put(contador.toString(),"Multi advertisement is supported: "+btAdapter.isMultipleAdvertisementSupported());
         }catch (Exception e)
         {
-            listado.put(contador.toString(),"Multi advertisement not supported ");
+            listado.put(contador.toString(),"Multi advertisement not supported");
         }
 
         try {
             contador++;
             listado.put(contador.toString(), "Chipset supports on-chip filtering: " + btAdapter.isOffloadedFilteringSupported());
         }catch (Exception e){
-            listado.put(contador.toString(),"Chipset on-chip filtering not supported ");
+            listado.put(contador.toString(),"Chipset on-chip filtering not supported");
         }
 
         try {
             contador++;
             listado.put(contador.toString(), "Chipset supports on-chip scan batching: " + btAdapter.isOffloadedScanBatchingSupported ());
         }catch (Exception e){
-            listado.put(contador.toString(),"Chipset on-chip scan batching not supported ");
+            listado.put(contador.toString(),"Chipset on-chip scan batching not supported");
+        }
+
+        // Recovery a list of paired devices
+        Set<BluetoothDevice> listVinculados =  btAdapter.getBondedDevices();
+
+        for (BluetoothDevice dispositivo : listVinculados) {
+            Map<String,String> listadoTemp = new HashMap<>();
+
+            listadoTemp.put("Nombre dispositivo", dispositivo.getName());
+            listadoTemp.put("Direccion Mac", dispositivo.getAddress());
+            listadoTemp.put("Codigo Bluetooth", dispositivo.getBluetoothClass().toString());
+            contador++;
+            listado.put(contador.toString(), "Dispositivo vinculado: " +listadoTemp);
         }
 
         //JSONObject json = new JSONObject(listado);
