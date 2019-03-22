@@ -148,18 +148,27 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        /**
+         * TODO Guardar el Log
+         */
 //        saveLog();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        /**
+         * TODO Guardar el Log
+         */
 //        saveLog();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        /**
+         * TODO Guardar el Log
+         */
 //        saveLog();
     }
 
@@ -328,6 +337,8 @@ public class MainActivity extends AppCompatActivity {
         InfoAdapter l = new InfoAdapter(infoFinal,getApplicationContext());
         rv.setAdapter(l);
 
+        lanzarMensaje(getResources().getString(R.string.appShowInfo));
+
     }
 
     // Start Bluetooth LE scan with default parameters and no filters.
@@ -338,6 +349,8 @@ public class MainActivity extends AppCompatActivity {
         btScanner = btAdapter.getBluetoothLeScanner();
         btScanner.startScan(mScanCallback);
         textoVista.setText(R.string.loading_text);
+
+        lanzarMensaje(getResources().getString(R.string.appInitScan));
     }
 
     // Stops an ongoing Bluetooth LE scan.
@@ -345,8 +358,10 @@ public class MainActivity extends AppCompatActivity {
         try{
             btScanner.stopScan(mScanCallback);
             textoVista.setText(mLeDevices.toString());
+            lanzarMensaje(getResources().getString(R.string.appStopScan));
         }catch (Exception e) {
             Log.d("DASDEBUG", "No se ha iniciado el escaner, no se puede parar");
+            lanzarMensaje(e.toString());
         }
     }
 
@@ -365,6 +380,7 @@ public class MainActivity extends AppCompatActivity {
         Context c = this;
         c.startService(getServiceIntent(c));
         textoVista.setText("Servicio Iniciado");
+        lanzarMensaje(getResources().getString(R.string.appInitAdvertising));
     }
 
     /**
@@ -375,6 +391,7 @@ public class MainActivity extends AppCompatActivity {
         Context c = this;
         c.stopService(getServiceIntent(c));
         textoVista.setText("Servicio Parado");
+        lanzarMensaje(getResources().getString(R.string.appStopAdvertising));
     }
 
     /**

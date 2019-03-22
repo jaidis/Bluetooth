@@ -2,6 +2,11 @@
     <string name="app_name">Bluetooth</string>
     <string name="loading_text">Loading...</string>
     <string name="adapterInfo">Default Text for Adapter</string>
+    <string name="appShowInfo">Información recuperada con éxito</string>
+    <string name="appInitScan">Iniciado escaneado de dispositivos</string>
+    <string name="appStopScan">Finalizado escaneado de dispositivos</string>
+    <string name="appInitAdvertising">Servicio Iniciado</string>
+    <string name="appStopAdvertising">Servicio Parado</string>
     <string name="btInfo">Show Info</string>
     <string name="btScan">Launch Scan</string>
     <string name="btStop">Stop Scan</string>
