@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Bluetooth</string>
     <string name="loading_text">Loading...</string>
+    <string name="adapterInfo">Default Text for Adapter</string>
     <string name="btInfo">Show Info</string>
     <string name="btScan">Launch Scan</string>
     <string name="btStop">Stop Scan</string>

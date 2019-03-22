@@ -23,6 +23,9 @@ import android.support.v4.app.NavUtils;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -46,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
     private BluetoothManager mBluetoothManager;
     private BluetoothAdapter btAdapter;
     private ArrayList<BluetoothDevice> mLeDevices;
+    private ArrayList<String> infoFinal;
     private BluetoothLeScanner btScanner;
     private ScanCallback mScanCallback;
 
@@ -144,19 +148,19 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        saveLog();
+//        saveLog();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        saveLog();
+//        saveLog();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        saveLog();
+//        saveLog();
     }
 
     protected void advertisingFailure(final Activity mainActivity){
@@ -305,9 +309,26 @@ public class MainActivity extends AppCompatActivity {
         Map<String, String> treeMap = new TreeMap<String, String>(listado);
         textoVista.setText(treeMap.toString());
 
+
         JSONObject json = new JSONObject(treeMap);
         Log.d("DASDEBUG", "onCreate: "+json.toString());
         //textoVista.setText(json.toString());
+
+        infoFinal = new ArrayList<String>();
+
+        for (Map.Entry<String,String> entry : treeMap.entrySet()) {
+            //Log.d("DASDEBUG", entry.getKey() + "/" + entry.getValue());
+            infoFinal.add(entry.getValue());
+        }
+
+        //Log.d("DASDEBUG", "mostrarInfo: "+infoFinal.size());
+
+        RecyclerView rv =(RecyclerView) findViewById(R.id.showInfo);
+        rv.setLayoutManager((RecyclerView.LayoutManager)(new LinearLayoutManager(getApplicationContext())));
+        rv.setLayoutManager((RecyclerView.LayoutManager)(new GridLayoutManager(getApplicationContext(),1)));
+        InfoAdapter l = new InfoAdapter(infoFinal,getApplicationContext());
+        rv.setAdapter(l);
+
     }
 
     // Start Bluetooth LE scan with default parameters and no filters.
